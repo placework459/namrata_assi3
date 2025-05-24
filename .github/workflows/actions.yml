@@ -1,13 +1,12 @@
 name: CI Workflow
 
-# Define when the workflow will run
 on:
   push:
     branches:
-      - main  # Trigger when changes are pushed to the 'main' branch
+      - main
   pull_request:
     branches:
-      - main  # Trigger for pull requests targeting the 'main' branch
+      - main
 
 env:
   DOCKER_IMAGE_NAME: saaignment3-Namrata
@@ -16,10 +15,8 @@ env:
   SONAR_ORGANIZATION: placework459
   SONAR_HOST_URL: https://sonarcloud.io/organizations/placework459/projects
 
-# Define the jobs that will run in this workflow
 jobs:
   build:
-    # This defines the environment to run the job on (ubuntu-latest, windows-latest, etc.)
     runs-on: ubuntu-latest
 
     steps:
@@ -31,34 +28,27 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'  # Specify the Python version to use
+          python-version: '3.11'
 
       # Step 3: Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  # Adjust based on your dependencies
+          pip install -r requirements.txt  # Install dependencies from requirements.txt
+          pip install gradio  # Ensure gradio is installed explicitly
 
       # Step 4: Run tests
       - name: Run Pytest with coverage and html report
         run: |
           mkdir -p reports
           pytest --cov=tests --cov-report=term --cov-report=html --cov-report=xml --html=reports/report.html --self-contained-html --junitxml=reports/reports.xml 
-          
+
       # Step 5: Upload coverage report
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: reports/report.html
-
-      #- name: Upload Coverage to Codecov
-      # uses: codecov/codecov-action@v4
-      # with:
-      #   file: reports/reports.xml
-      #    flags: unittests
-      #    fail_ci_if_error: true
-      #    verbose: true
 
       # Step 6: SonarQube Scan
       - name: SonarQube Scan
@@ -88,7 +78,7 @@ jobs:
           format: table
           exit-code: 1 # fail if vulnerabilities are found 
           severity: "CRITICAL,HIGH"
-          
+
       # Step 10: Push Docker Image
       - name: Push Docker Image
         run: |
@@ -101,28 +91,17 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Ensure git-lfs is installed (GitHub runners usually have it, but good practice)
           sudo apt-get update
           sudo apt-get install -y git-lfs
-          git lfs install --system # Initialize LFS for the system
+          git lfs install --system
 
-          # The 'actions/checkout' step above has already cloned your repository
-          # and fetched LFS files because of `lfs: true` and `Workspace-depth: 0`.
-
-          # Set up user for potential commits if needed (though direct push might not require a new commit)
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
           
           echo "Setting remote for Hugging Face Space"
-          # Add the Hugging Face Space as a remote.
-          # The URL uses oauth2 for token-based authentication.
           git remote add huggingface https://oauth2:${HF_TOKEN}@${HF_SPACE_REPO_URL#https://}
           
           echo "Pushing to Hugging Face Space: ${{ env.HF_SPACE_REPO_URL }}"
-          # Push the main branch to the Hugging Face Space.
-          # --force is used to overwrite the history on the Space, ensuring it matches your GitHub repo.
-          # This should resolve the "shallow update not allowed" because the local repo now has full history.
-          # LFS files will be pushed automatically.
           git push --force huggingface main
           
           echo "Successfully pushed to Hugging Face Space"
