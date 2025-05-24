@@ -6,3 +6,4 @@ pydantic
 pytest-cov
 pytest-html
 httpx
+gradio
