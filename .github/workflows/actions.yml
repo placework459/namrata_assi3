@@ -12,9 +12,9 @@ on:
 env:
   DOCKER_IMAGE_NAME: saaignment3-Namrata
   HF_SPACE_REPO_URL: https://huggingface.co/spaces/Namratakghodke/Housing_Price
-  SONAR_PROJECT_KEY: namrataonlinetrainingorg
+  SONAR_PROJECT_KEY: namrata_assi3
   SONAR_ORGANIZATION: placework459
-  SONAR_HOST_URL: https://sonarcloud.io
+  SONAR_HOST_URL: https://sonarcloud.io/organizations/placework459/projects
 
 # Define the jobs that will run in this workflow
 jobs:
