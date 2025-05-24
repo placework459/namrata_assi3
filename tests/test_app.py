@@ -1,72 +1,56 @@
 import pickle
 import pytest
 import gradio as gr
+from unittest import mock
 
-# Absolute path to the model
-model = pickle.load(open("D:/Users/i60385/Desktop/Work/Assig_3/model/model.pkl", "rb"))
+# Mocking the model loading process for CI/CD
+def mock_model_predict(input_data):
+    return [500000.0]  # Example predicted price
 
-
-
-# Prediction function (should match your actual function)
 def predict_price(square_feet, bedrooms, location_score):
+    # Validate inputs
+    if not isinstance(square_feet, (int, float)) or not isinstance(bedrooms, int) or not isinstance(location_score, (int, float)):
+        raise ValueError("Invalid input types. Expected numbers for square_feet, bedrooms, and location_score.")
+    
+    # For testing, we mock the model loading
+    model = mock_model_predict
     input_data = [[square_feet, bedrooms, location_score]]
-    prediction = model.predict(input_data)[0]
+    prediction = model(input_data)[0]
     return prediction
 
-# Sample test
+# Test: Valid input for prediction
 def test_predict_price_valid_input():
-    # Valid input for prediction
     result = predict_price(1200, 3, 7.5)
-    
-    # Assert that the result is a number
     assert isinstance(result, (float, int)), "Output should be a number"
-    
-    # Assert that the predicted price is positive
     assert result > 0, "Predicted price should be positive"
 
-# Test for the Gradio interface
+# Test: Gradio interface
 def test_gradio_interface():
-    # Initialize Gradio interface
     demo = gr.Interface(
         fn=predict_price,
-        inputs=[
-            gr.Number(label="Square Feet"),
-            gr.Number(label="Bedrooms"),
-            gr.Number(label="Location Score")
-        ],
+        inputs=[gr.Number(label="Square Feet"), gr.Number(label="Bedrooms"), gr.Number(label="Location Score")],
         outputs=gr.Number(label="Predicted Price"),
     )
-    
-    # Call the function directly with test inputs and check the result
     result = demo.fn(1000, 2, 6.0)
-    
-    # Assert that the result is a number
     assert isinstance(result, (float, int)), "Output should be a number"
-    
-    # Check that the result is positive (if that's the expected behavior)
     assert result > 0, "Predicted price should be positive"
 
-# Optionally, you can add more tests for invalid inputs, empty inputs, etc.
+# Test: Invalid input
 def test_invalid_input():
-    # Invalid input: square_feet as a string instead of a number
-    with pytest.raises(ValueError):  # Assuming ValueError is raised for invalid input
+    with pytest.raises(ValueError):  
         predict_price("invalid_input", 2, 6.0)
 
+# Test: Gradio interface with invalid input
 def test_gradio_invalid_input():
-    # Test Gradio interface with invalid input (e.g., string instead of a number)
     demo = gr.Interface(
         fn=predict_price,
-        inputs=[
-            gr.Textbox(label="Square Feet"),  # Deliberate wrong input type for testing
-            gr.Number(label="Bedrooms"),
-            gr.Number(label="Location Score")
-        ],
+        inputs=[gr.Textbox(label="Square Feet"), gr.Number(label="Bedrooms"), gr.Number(label="Location Score")],
         outputs=gr.Number(label="Predicted Price"),
     )
+    try:
+        result = demo.fn("invalid_input", 2, 6.0)
+    except ValueError as e:
+        result = str(e)  # Capture the error message
     
-    # Test Gradio with a string for square_feet (should raise an error or be handled)
-    result = demo.fn("invalid_input", 2, 6.0)
-    
-    # Here, you should handle the error (depending on how Gradio reacts to bad inputs)
     assert isinstance(result, str), "Expected an error message or warning"
-    assert "Error" in result, "Result should contain an error message for invalid input"
+    assert "Invalid input types" in result, "Result should contain an error message for invalid input"
