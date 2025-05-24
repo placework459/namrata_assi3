@@ -39,7 +39,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt  # Adjust based on your dependencies
 
-      # Step 4: Run Pytest
-      - name: Run Pytest
+       # Step 4: Run tests
+      - name: Run Pytest with coverage and html report
         run: |
-          pytest --maxfail=1 --disable-warnings -q
+          mkdir -p reports
+          pytest --cov=tests --cov-report=term --cov-report=html --cov-report=xml --html=reports/report.html --self-contained-html --junitxml=reports/reports.xml --cov-fail-under=100
+          
+      # Step 5: Upload coverage report
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: reports/report.html
+
+           # Step 6: SonarQube Scan
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ env.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ env.SONAR_ORGANIZATION }}
+          SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
