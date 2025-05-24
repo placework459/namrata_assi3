@@ -1,0 +1,3 @@
+train:
+  features: ["square_feet", "bedrooms", "location_score"]
+  target: price

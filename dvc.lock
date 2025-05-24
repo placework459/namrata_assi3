@@ -1,0 +1,18 @@
+schema: '2.0'
+stages:
+  preprocessor:
+    cmd: python src/preprocessor.py Data/raw.csv Data/preprocessor.csv
+    deps:
+    - path: Data/raw.csv
+      hash: md5
+      md5: eadbbe54ae4b655040d4364658cd346b
+      size: 140
+    - path: src/preprocessor.py
+      hash: md5
+      md5: e92e7d6384f4b33ddc1d88f62dbf46a8
+      size: 498
+    outs:
+    - path: Data/preprocessor.csv
+      hash: md5
+      md5: 134f34b6c98023ba9c56ccf08dd781e4
+      size: 149
