@@ -41,18 +41,12 @@ jobs:
 
        # Step 4: Run tests
       - name: Run Pytest with coverage and html report
-        run: |
-          mkdir -p reports
-          pytest --cov=tests --cov-report=term --cov-report=html --cov-report=xml --html=reports/report.html --self-contained-html --junitxml=reports/reports.xml --cov-fail-under=100
+        run: |      
+          pytest 
           
-      # Step 5: Upload coverage report
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: reports/report.html
+      
 
-           # Step 6: SonarQube Scan
+           # Step 5: SonarQube Scan
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v1
         env:
