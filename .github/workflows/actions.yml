@@ -9,8 +9,6 @@ on:
       - main
 
 env:
-  DOCKER_IMAGE_NAME: saaignment3-Namrata
-  HF_SPACE_REPO_URL: https://huggingface.co/spaces/Namratakghodke/Housing_Price
   SONAR_PROJECT_KEY: namrata_assi3
   SONAR_ORGANIZATION: placework459
   SONAR_HOST_URL: https://sonarcloud.io
@@ -43,13 +41,16 @@ jobs:
         run: |
           pytest --cov=your_package --cov-report=html
 
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v1
-        with:
-          args: -X
+      - name: Install SonarScanner
+        run: |
+          npm install -g sonar-scanner
+
+      - name: Run SonarScanner
         env:
-          JAVA_HOME: ${{ steps.setup-java.outputs.path }}  # 🔥 Force SonarScanner to use Java 17
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: ${{ env.SONAR_PROJECT_KEY }}
-          SONAR_ORGANIZATION: ${{ env.SONAR_ORGANIZATION }}
-          SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }} \
+            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} \
+            -Dsonar.host.url=${{ env.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
