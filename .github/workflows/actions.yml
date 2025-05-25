@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  SONAR_PROJECT_KEY: namrata_assi3
+  SONAR_PROJECT_KEY: placework459_namrata_assi3
   SONAR_ORGANIZATION: placework459
   SONAR_HOST_URL: https://sonarcloud.io
 
